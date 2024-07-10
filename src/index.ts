@@ -36,6 +36,10 @@ client.on('messageCreate', async ( msg ) => {
     });
   } else{
     user.messageCreateCount! += 1;
+    
+    user.avatar = msg.author.avatar;
+    user.username = msg.author.displayName;
+
     user.save();
   }
 })
