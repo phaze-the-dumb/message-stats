@@ -1,0 +1,13 @@
+{
+	"dependencies": {
+		"discord.js": "^14.15.3",
+		"dotenv": "^16.4.5",
+		"mongoose": "^8.5.0"
+	},
+	"devDependencies": {
+		"typescript": "^5.5.3"
+	},
+	"scripts": {
+		"start": "tsc && node ./dist"
+	}
+}
