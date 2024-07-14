@@ -72,13 +72,16 @@ fastify.get<{ Querystring: { uid: string } }>('/api/v1/user', async ( req, reply
   if(!uid)return reply.send({ ok: false, error: 'No user id provided' });
 
   let user = await users.findById(uid);
+
+  reply.header("access-control-allow-origin", "qsup.phaz.uk");
   reply.send(user);
 })
 
 fastify.get<{ Querystring: { page?: number } }>('/api/v1/board', async ( req, reply ) => {
   let page = req.query.page || 0;
-
   let usersList = await users.find().sort({ messageCreateCount: -1 }).skip(page * 15).limit(15).exec();
+
+  reply.header("access-control-allow-origin", "qsup.phaz.uk");
   reply.send(usersList);
 })
 
