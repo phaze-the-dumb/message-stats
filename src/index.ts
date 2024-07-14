@@ -1,9 +1,12 @@
 import djs from 'discord.js';
+import Fastify from 'fastify';
 import 'dotenv/config';
 
 import mongoose from 'mongoose';
 
 import users from './db/user';
+
+const fastify = Fastify();
 
 mongoose.connect(process.env.MONGODB!)
   .then(() => console.log("Connected to DB"));
@@ -36,7 +39,7 @@ client.on('messageCreate', async ( msg ) => {
     });
   } else{
     user.messageCreateCount! += 1;
-    
+
     user.avatar = msg.author.avatar;
     user.username = msg.author.displayName;
 
@@ -64,4 +67,20 @@ client.on('messageUpdate', async ( msg ) => {
   user.save();
 })
 
+fastify.get<{ Querystring: { uid: string } }>('/api/v1/user', async ( req, reply ) => {
+  let uid = req.query.uid;
+  if(!uid)return reply.send({ ok: false, error: 'No user id provided' });
+
+  let user = await users.findById(uid);
+  reply.send(user);
+})
+
+fastify.get<{ Querystring: { page?: number } }>('/api/v1/board', async ( req, reply ) => {
+  let page = req.query.page || 0;
+
+  let usersList = await users.find().sort({ messageCreateCount: -1 }).skip(page * 15).limit(15).exec();
+  reply.send(usersList);
+})
+
 client.login(process.env.TOKEN);
+fastify.listen({ port: 7005, host: '0.0.0.0' });
