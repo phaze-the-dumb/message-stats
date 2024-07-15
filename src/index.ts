@@ -68,7 +68,7 @@ client.on('messageUpdate', async ( msg ) => {
 })
 
 fastify.options('/api/v1/user', ( _req, reply ) => {
-  reply.header("access-control-allow-origin", "qsup.phaz.uk");
+  reply.header("access-control-allow-origin", "https://qsup.phaz.uk");
   reply.send('200 OK');
 })
 
@@ -78,12 +78,12 @@ fastify.get<{ Querystring: { uid: string } }>('/api/v1/user', async ( req, reply
 
   let user = await users.findById(uid);
 
-  reply.header("access-control-allow-origin", "qsup.phaz.uk");
+  reply.header("access-control-allow-origin", "https://qsup.phaz.uk");
   reply.send(user);
 })
 
 fastify.options('/api/v1/board', ( _req, reply ) => {
-  reply.header("access-control-allow-origin", "qsup.phaz.uk");
+  reply.header("access-control-allow-origin", "https://qsup.phaz.uk");
   reply.send('200 OK');
 })
 
@@ -91,7 +91,7 @@ fastify.get<{ Querystring: { page?: number } }>('/api/v1/board', async ( req, re
   let page = req.query.page || 0;
   let usersList = await users.find().sort({ messageCreateCount: -1 }).skip(page * 15).limit(15).exec();
 
-  reply.header("access-control-allow-origin", "qsup.phaz.uk");
+  reply.header("access-control-allow-origin", "https://qsup.phaz.uk");
   reply.send(usersList);
 })
 
