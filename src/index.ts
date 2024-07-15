@@ -67,6 +67,11 @@ client.on('messageUpdate', async ( msg ) => {
   user.save();
 })
 
+fastify.options('/api/v1/user', ( _req, reply ) => {
+  reply.header("access-control-allow-origin", "qsup.phaz.uk");
+  reply.send('200 OK');
+})
+
 fastify.get<{ Querystring: { uid: string } }>('/api/v1/user', async ( req, reply ) => {
   let uid = req.query.uid;
   if(!uid)return reply.send({ ok: false, error: 'No user id provided' });
@@ -75,6 +80,11 @@ fastify.get<{ Querystring: { uid: string } }>('/api/v1/user', async ( req, reply
 
   reply.header("access-control-allow-origin", "qsup.phaz.uk");
   reply.send(user);
+})
+
+fastify.options('/api/v1/board', ( _req, reply ) => {
+  reply.header("access-control-allow-origin", "qsup.phaz.uk");
+  reply.send('200 OK');
 })
 
 fastify.get<{ Querystring: { page?: number } }>('/api/v1/board', async ( req, reply ) => {
