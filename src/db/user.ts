@@ -7,7 +7,9 @@ let schema = new mongoose.Schema({
 
   messageCreateCount: Number,
   messageDeleteCount: Number,
-  messageEditCount: Number
+  messageEditCount: Number,
+
+  wins: Number
 });
 
 export default mongoose.model("Users", schema);

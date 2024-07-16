@@ -28,6 +28,16 @@ let resetUserScores = async () => {
   fs.writeFileSync('reset.txt', getNextReset().toString());
   savedReset = nextReset;
 
+  let user = await users.find().sort({ messageCreateCount: -1 }).limit(1).exec();
+
+  if(!user[0].wins){
+    user[0].wins = 1;
+  } else{
+    user[0].wins += 1;
+  }
+
+  await user[0].save();
+
   (await users.find()).forEach(user => {
     user.messageCreateCount = 0;
     user.messageDeleteCount = 0;
@@ -73,7 +83,9 @@ client.on('messageCreate', async ( msg ) => {
 
       messageCreateCount: 1,
       messageDeleteCount: 0,
-      messageEditCount: 0
+      messageEditCount: 0,
+
+      wins: 0
     });
   } else{
     user.messageCreateCount! += 1;
