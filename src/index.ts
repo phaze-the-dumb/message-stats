@@ -14,6 +14,11 @@ let getNextReset = (): number => {
   d.setDate(1);
   d.setMonth(d.getMonth() + 1);
 
+  d.setMilliseconds(0);
+  d.setSeconds(0);
+  d.setMinutes(0);
+  d.setHours(0);
+
   return d.getTime();
 }
 
