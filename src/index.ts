@@ -12,7 +12,11 @@ let getNextReset = (): number => {
   let d = new Date();
 
   d.setDate(1);
-  d.setMonth(d.getMonth() + 1);
+
+  if(d.getMonth() >= 11)
+    d.setMonth(0);
+  else
+    d.setMonth(d.getMonth() + 1);
 
   d.setMilliseconds(0);
   d.setSeconds(0);
