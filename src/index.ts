@@ -1,12 +1,41 @@
 import djs from 'discord.js';
 import Fastify from 'fastify';
+import fs from 'fs';
 import 'dotenv/config';
-
 import mongoose from 'mongoose';
 
 import users from './db/user';
 
 const fastify = Fastify();
+
+let getNextReset = (): number => {
+  let d = new Date();
+
+  d.setDate(1);
+  d.setMonth(d.getMonth() + 1);
+
+  return d.getTime();
+}
+
+let resetUserScores = async () => {
+  let nextReset = getNextReset();
+
+  fs.writeFileSync('reset.txt', getNextReset().toString());
+  savedReset = nextReset;
+
+  (await users.find()).forEach(user => {
+    user.messageCreateCount = 0;
+    user.messageDeleteCount = 0;
+    user.messageEditCount = 0;
+
+    user.save();
+  })
+}
+
+if(!fs.existsSync('reset.txt'))
+  fs.writeFileSync('reset.txt', getNextReset().toString());
+
+let savedReset = parseInt(fs.readFileSync('reset.txt', 'utf-8'));
 
 mongoose.connect(process.env.MONGODB!)
   .then(() => console.log("Connected to DB"));
@@ -25,6 +54,10 @@ client.on('ready', () => {
 client.on('messageCreate', async ( msg ) => {
   if(msg.guildId !== process.env.SERVER_ID || msg.author.bot)
     return;
+
+  if(msg.createdTimestamp >= savedReset){
+    resetUserScores();
+  }
 
   let user = await users.findById(msg.author.id);
   if(!user){
@@ -50,6 +83,10 @@ client.on('messageCreate', async ( msg ) => {
 client.on('messageDelete', async ( msg ) => {
   if(msg.guildId !== process.env.SERVER_ID)return;
 
+  if(Date.now() >= savedReset){
+    resetUserScores();
+  }
+
   let user = await users.findById(msg.author?.id);
   if(!user)return;
 
@@ -59,6 +96,10 @@ client.on('messageDelete', async ( msg ) => {
 
 client.on('messageUpdate', async ( msg ) => {
   if(msg.guildId !== process.env.SERVER_ID)return;
+
+  if(Date.now() >= savedReset){
+    resetUserScores();
+  }
 
   let user = await users.findById(msg.author?.id);
   if(!user)return;
@@ -73,6 +114,10 @@ fastify.options('/api/v1/user', ( _req, reply ) => {
 })
 
 fastify.get<{ Querystring: { uid: string } }>('/api/v1/user', async ( req, reply ) => {
+  if(Date.now() >= savedReset){
+    resetUserScores();
+  }
+
   let uid = req.query.uid;
   if(!uid)return reply.send({ ok: false, error: 'No user id provided' });
 
@@ -88,11 +133,29 @@ fastify.options('/api/v1/board', ( _req, reply ) => {
 })
 
 fastify.get<{ Querystring: { page?: number } }>('/api/v1/board', async ( req, reply ) => {
+  if(Date.now() >= savedReset){
+    resetUserScores();
+  }
+
   let page = req.query.page || 0;
   let usersList = await users.find().sort({ messageCreateCount: -1 }).skip(page * 15).limit(15).exec();
 
   reply.header("access-control-allow-origin", "https://qsup.phaz.uk");
   reply.send(usersList);
+})
+
+fastify.options('/api/v1/reset', ( _req, reply ) => {
+  reply.header("access-control-allow-origin", "https://qsup.phaz.uk");
+  reply.send('200 OK');
+})
+
+fastify.get('/api/v1/reset', async ( req, reply ) => {
+  if(Date.now() >= savedReset){
+    resetUserScores();
+  }
+
+  reply.header("access-control-allow-origin", "https://qsup.phaz.uk");
+  reply.send({ reset: savedReset });
 })
 
 client.login(process.env.TOKEN);
