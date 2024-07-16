@@ -8,7 +8,7 @@ import websockets, { WebSocket } from '@fastify/websocket';
 
 import users from './db/user';
 
-const fastify = Fastify();
+const fastify = Fastify({ logger: { level: 'error' } });
 
 fastify.register(websockets);
 
@@ -202,19 +202,21 @@ fastify.get('/api/v1/reset', async ( req, reply ) => {
   reply.send({ reset: savedReset });
 })
 
-fastify.options('/api/v1/live', ( _req, reply ) => {
-  reply.header("access-control-allow-origin", "https://qsup.phaz.uk");
-  reply.send('200 OK');
-})
-
-fastify.get('/api/v1/live', { websocket: true }, async ( socket: WebSocket, req: FastifyRequest ) => {
-  let listener = new Listener(socket);
-  listeners.push(listener);
-
-  socket.on('close', () => {
-    listeners = listeners.filter(x => x.id !== listener.id);
+fastify.register(async (fastify) => {
+  fastify.options('/api/v1/live', ( _req, reply ) => {
+    reply.header("access-control-allow-origin", "https://qsup.phaz.uk");
+    reply.send('200 OK');
   });
-})
+
+  fastify.get('/api/v1/live', { websocket: true }, async ( socket: WebSocket, req: FastifyRequest ) => {
+    let listener = new Listener(socket);
+    listeners.push(listener);
+
+    socket.on('close', () => {
+      listeners = listeners.filter(x => x.id !== listener.id);
+    });
+  });
+});
 
 client.login(process.env.TOKEN);
 fastify.listen({ port: 7005, host: '0.0.0.0' });
