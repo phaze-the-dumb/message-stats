@@ -116,7 +116,7 @@ client.on('messageCreate', async ( msg ) => {
     user.username = msg.author.displayName;
 
     user.save();
-    listeners.forEach(l => l.socket.send(user.messageEditCount + "|CREATE|" + msg.author!.id));
+    listeners.forEach(l => l.socket.send(user.messageCreateCount + "|CREATE|" + msg.author!.id));
   }
 })
 
@@ -133,7 +133,7 @@ client.on('messageDelete', async ( msg ) => {
   user.messageDeleteCount! += 1;
   user.save();
 
-  listeners.forEach(l => l.socket.send(user.messageEditCount + "|DELETE|" + msg.author!.id));
+  listeners.forEach(l => l.socket.send(user.messageDeleteCount + "|DELETE|" + msg.author!.id));
 })
 
 client.on('messageUpdate', async ( msg ) => {
