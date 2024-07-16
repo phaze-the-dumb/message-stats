@@ -1,5 +1,6 @@
 {
 	"dependencies": {
+		"@fastify/websocket": "^10.0.1",
 		"discord.js": "^14.15.3",
 		"dotenv": "^16.4.5",
 		"fastify": "^4.28.1",

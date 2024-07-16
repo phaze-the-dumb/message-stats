@@ -1,12 +1,28 @@
 import djs from 'discord.js';
-import Fastify from 'fastify';
+import Fastify, { FastifyRequest } from 'fastify';
 import fs from 'fs';
 import 'dotenv/config';
 import mongoose from 'mongoose';
+import crypto from 'crypto';
+import websockets, { WebSocket } from '@fastify/websocket';
 
 import users from './db/user';
 
 const fastify = Fastify();
+
+fastify.register(websockets);
+
+class Listener{
+  id: string;
+  socket: WebSocket;
+
+  constructor(sock: WebSocket){
+    this.socket = sock;
+    this.id = crypto.randomUUID();
+  }
+}
+
+let listeners: Listener[] = [];
 
 let getNextReset = (): number => {
   let d = new Date();
@@ -91,6 +107,8 @@ client.on('messageCreate', async ( msg ) => {
 
       wins: 0
     });
+
+    listeners.forEach(l => l.socket.send("1|CREATE|" + msg.author!.id));
   } else{
     user.messageCreateCount! += 1;
 
@@ -98,6 +116,7 @@ client.on('messageCreate', async ( msg ) => {
     user.username = msg.author.displayName;
 
     user.save();
+    listeners.forEach(l => l.socket.send(user.messageEditCount + "|CREATE|" + msg.author!.id));
   }
 })
 
@@ -113,6 +132,8 @@ client.on('messageDelete', async ( msg ) => {
 
   user.messageDeleteCount! += 1;
   user.save();
+
+  listeners.forEach(l => l.socket.send(user.messageEditCount + "|DELETE|" + msg.author!.id));
 })
 
 client.on('messageUpdate', async ( msg ) => {
@@ -127,6 +148,8 @@ client.on('messageUpdate', async ( msg ) => {
 
   user.messageEditCount! += 1;
   user.save();
+
+  listeners.forEach(l => l.socket.send(user.messageEditCount + "|EDIT|" + msg.author!.id));
 })
 
 fastify.options('/api/v1/user', ( _req, reply ) => {
@@ -177,6 +200,20 @@ fastify.get('/api/v1/reset', async ( req, reply ) => {
 
   reply.header("access-control-allow-origin", "https://qsup.phaz.uk");
   reply.send({ reset: savedReset });
+})
+
+fastify.options('/api/v1/live', ( _req, reply ) => {
+  reply.header("access-control-allow-origin", "https://qsup.phaz.uk");
+  reply.send('200 OK');
+})
+
+fastify.get('/api/v1/live', { websocket: true }, async ( socket: WebSocket, req: FastifyRequest ) => {
+  let listener = new Listener(socket);
+  listeners.push(listener);
+
+  socket.on('close', () => {
+    listeners = listeners.filter(x => x.id !== listener.id);
+  });
 })
 
 client.login(process.env.TOKEN);
