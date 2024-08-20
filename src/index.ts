@@ -58,13 +58,12 @@ let resetUserScores = async () => {
 
   await user[0].save();
 
-  (await users.find()).forEach(user => {
-    user.messageCreateCount = 0;
-    user.messageDeleteCount = 0;
-    user.messageEditCount = 0;
-
-    user.save();
-  })
+  await users.updateMany({}, { $set: {
+    messageCreateCount: 0,
+    messageDeleteCount: 0,
+    messageEditCount: 0,
+    typedCharacterCount: 0
+  } });
 }
 
 if(!fs.existsSync('reset.txt'))
@@ -105,18 +104,27 @@ client.on('messageCreate', async ( msg ) => {
       messageDeleteCount: 0,
       messageEditCount: 0,
 
+      typedCharacterCount: msg.content.length,
+
       wins: 0
     });
 
     listeners.forEach(l => l.socket.send("1|CREATE|" + msg.author!.id));
+    listeners.forEach(l => l.socket.send(msg.content.length + "|TYPED|" + msg.author!.id));
   } else{
+    if(!user.typedCharacterCount)
+      user.typedCharacterCount = 0;
+
     user.messageCreateCount! += 1;
+    user.typedCharacterCount += msg.content.length;
 
     user.avatar = msg.author.avatar;
     user.username = msg.author.displayName;
 
     user.save();
+
     listeners.forEach(l => l.socket.send(user.messageCreateCount + "|CREATE|" + msg.author!.id));
+    listeners.forEach(l => l.socket.send(user.typedCharacterCount + "|TYPED|" + msg.author!.id));
   }
 })
 

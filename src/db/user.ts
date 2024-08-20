@@ -9,6 +9,8 @@ let schema = new mongoose.Schema({
   messageDeleteCount: Number,
   messageEditCount: Number,
 
+  typedCharacterCount: Number,
+
   wins: Number
 });
 
