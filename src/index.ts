@@ -190,7 +190,7 @@ fastify.get<{ Querystring: { page?: number } }>('/api/v1/board', async ( req, re
   }
 
   let page = req.query.page || 0;
-  let usersList = await users.find().sort({ messageCreateCount: -1 }).skip(page * 15).limit(15).exec();
+  let usersList = await users.find().sort({ typedCharacterCount: -1 }).skip(page * 15).limit(15).exec();
 
   reply.header("access-control-allow-origin", "https://qsup.phaz.uk");
   reply.send(usersList);
