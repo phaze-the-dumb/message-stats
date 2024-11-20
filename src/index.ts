@@ -48,7 +48,7 @@ let resetUserScores = async () => {
   fs.writeFileSync('reset.txt', getNextReset().toString());
   savedReset = nextReset;
 
-  let user = await users.find().sort({ messageCreateCount: -1 }).limit(1).exec();
+  let user = await users.find().sort({ typedCharacterCount: -1 }).limit(1).exec();
 
   if(!user[0].wins){
     user[0].wins = 1;
