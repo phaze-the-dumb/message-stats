@@ -71,6 +71,21 @@ if(!fs.existsSync('reset.txt'))
 
 let savedReset = parseInt(fs.readFileSync('reset.txt', 'utf-8'));
 
+let getWordsInMessage = ( content: string ): Array<{ word: string, uses: number }> => {
+  let words = content.split(' ');
+  let worms: Array<{ word: string, uses: number }> = [];
+
+  words.forEach(word => {
+    let worm = worms.find(x => x.word === word);
+    if(worm)
+      worm.uses++;
+    else
+      worms.push({ word: word, uses: 1 });
+  });
+
+  return worms;
+}
+
 mongoose.connect(process.env.MONGODB!)
   .then(() => console.log("Connected to DB"));
 
@@ -105,6 +120,7 @@ client.on('messageCreate', async ( msg ) => {
       messageEditCount: 0,
 
       typedCharacterCount: msg.content.length,
+      words: getWordsInMessage(msg.content),
 
       wins: 0
     });
@@ -120,6 +136,15 @@ client.on('messageCreate', async ( msg ) => {
 
     user.avatar = msg.author.avatar;
     user.username = msg.author.displayName;
+
+    let words = getWordsInMessage(msg.content);
+    words.forEach(word => {
+      let worm = user.words.find(x => x.word === word.word);
+      if(worm)
+        worm.uses! += word.uses;
+      else
+        user.words.push(word);
+    })
 
     user.save();
 

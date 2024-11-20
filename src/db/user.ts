@@ -10,6 +10,10 @@ let schema = new mongoose.Schema({
   messageEditCount: Number,
 
   typedCharacterCount: Number,
+  words: [{
+    word: String,
+    uses: Number,
+  }],
 
   wins: Number
 });
