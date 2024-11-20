@@ -62,7 +62,8 @@ let resetUserScores = async () => {
     messageCreateCount: 0,
     messageDeleteCount: 0,
     messageEditCount: 0,
-    typedCharacterCount: 0
+    typedCharacterCount: 0,
+    words: []
   } });
 }
 
