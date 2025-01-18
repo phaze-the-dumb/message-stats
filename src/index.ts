@@ -77,6 +77,7 @@ let getWordsInMessage = ( content: string ): Array<{ word: string, uses: number 
   let worms: Array<{ word: string, uses: number }> = [];
 
   words.forEach(word => {
+    if(word === "") return;
     let worm = worms.find(x => x.word === word);
     if(worm)
       worm.uses++;
