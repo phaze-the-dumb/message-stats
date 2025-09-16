@@ -93,6 +93,7 @@ let getCharactersInMessage = ( content: string ): number => {
 
     if(content[i] === '<'){
       inMention = true;
+      lengthOfMention = 0;
     }
     if(content[i] === '>'){
       inMention = false;
