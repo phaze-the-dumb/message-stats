@@ -72,6 +72,18 @@ if(!fs.existsSync('reset.txt'))
 
 let savedReset = parseInt(fs.readFileSync('reset.txt', 'utf-8'));
 
+let getCharactersInMessage = ( content: string ): number => {
+  let count = 0;
+  for (let i = 0; i < content.length; i++) {
+    let code = content.charCodeAt(i);
+
+    if(code >= 32 && code <= 126)
+      count++;
+  }
+
+  return count;
+}
+
 let getWordsInMessage = ( content: string ): Array<{ word: string, uses: number }> => {
   let words = content.split(' ');
   let worms: Array<{ word: string, uses: number }> = [];
@@ -121,7 +133,7 @@ client.on('messageCreate', async ( msg ) => {
       messageDeleteCount: 0,
       messageEditCount: 0,
 
-      typedCharacterCount: msg.content.length,
+      typedCharacterCount: getCharactersInMessage(msg.content),
       words: getWordsInMessage(msg.content),
 
       wins: 0
@@ -134,7 +146,7 @@ client.on('messageCreate', async ( msg ) => {
       user.typedCharacterCount = 0;
 
     user.messageCreateCount! += 1;
-    user.typedCharacterCount += msg.content.length;
+    user.typedCharacterCount += getCharactersInMessage(msg.content);
 
     user.avatar = msg.author.avatar;
     user.username = msg.author.displayName;
