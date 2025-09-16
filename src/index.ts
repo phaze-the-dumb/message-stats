@@ -85,7 +85,11 @@ let getCharactersInMessage = ( content: string ): number => {
       content[i] + content[i + 1] + content[i + 2] + content[i + 3] === 'http')inLink = true;
 
     let code = content.charCodeAt(i);
-    if(code >= 33 && code <= 126 && code != 124)count++;
+    if(
+      code >= 48 && code <= 57 ||
+      code >= 65 && code <= 90 ||
+      code >= 97 && code <= 122
+    )count++;
   }
 
   return count;
@@ -128,8 +132,6 @@ client.on('messageCreate', async ( msg ) => {
   if(msg.createdTimestamp >= savedReset){
     resetUserScores();
   }
-
-  console.log(msg.content);
 
   let user = await users.findById(msg.author.id);
   if(!user){
