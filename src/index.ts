@@ -80,6 +80,8 @@ let getCharactersInMessage = ( content: string ): number => {
   let inNumberOnStartOfLine = false;
   let isStartOfLine = true;
   let lengthOfStartOfLineNumber = 0;
+  let inMention = false;
+  let lengthOfMention = 0;
 
   for (let i = 0; i < content.length; i++) {
     if(content[i] === ' ')inLink = false;
@@ -87,6 +89,14 @@ let getCharactersInMessage = ( content: string ): number => {
       inCodeblockFirstLine = false;
       isStartOfLine = true;
       continue;
+    }
+
+    if(content[i] === '<'){
+      inMention = true;
+    }
+    if(content[i] === '>'){
+      inMention = false;
+      count -= lengthOfMention;
     }
 
     if(inLink || inCodeblockFirstLine || inNumberOnStartOfLine)continue;
@@ -114,6 +124,8 @@ let getCharactersInMessage = ( content: string ): number => {
 
       lengthOfStartOfLineNumber++;
       count++;
+
+      if(inMention)lengthOfMention++;
     } else{
       inNumberOnStartOfLine = false;
     }
@@ -121,7 +133,11 @@ let getCharactersInMessage = ( content: string ): number => {
     if(
       code >= 65 && code <= 90 ||
       code >= 97 && code <= 122
-    )count++;
+    ){
+      count++;
+
+      if(inMention)lengthOfMention++;
+    }
 
     isStartOfLine = false;
   }
