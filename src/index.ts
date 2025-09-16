@@ -74,11 +74,16 @@ let savedReset = parseInt(fs.readFileSync('reset.txt', 'utf-8'));
 
 let getCharactersInMessage = ( content: string ): number => {
   let count = 0;
-  for (let i = 0; i < content.length; i++) {
-    let code = content.charCodeAt(i);
+  let inLink = false;
 
-    if(code >= 33 && code <= 126 && code != 124)
-      count++;
+  for (let i = 0; i < content.length; i++) {
+    if(content[i] === ' ')inLink = false;
+    if(inLink)continue;
+
+    if(content[i] === 'h' && content.slice(i, 4) === 'http')inLink = false;
+
+    let code = content.charCodeAt(i);
+    if(code >= 33 && code <= 126 && code != 124)count++;
   }
 
   return count;
