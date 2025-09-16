@@ -122,6 +122,8 @@ client.on('messageCreate', async ( msg ) => {
     resetUserScores();
   }
 
+  console.log(msg.content);
+
   let user = await users.findById(msg.author.id);
   if(!user){
     await users.create({
