@@ -80,7 +80,9 @@ let getCharactersInMessage = ( content: string ): number => {
     if(content[i] === ' ')inLink = false;
     if(inLink)continue;
 
-    if(content[i] === 'h' && content.slice(i, 4) === 'http')inLink = false;
+    if(
+      content[i] === 'h' &&
+      content[i] + content[i + 1] + content[i + 2] + content[i + 3] === 'http')inLink = true;
 
     let code = content.charCodeAt(i);
     if(code >= 33 && code <= 126 && code != 124)count++;
