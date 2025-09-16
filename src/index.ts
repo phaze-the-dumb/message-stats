@@ -77,7 +77,7 @@ let getCharactersInMessage = ( content: string ): number => {
   for (let i = 0; i < content.length; i++) {
     let code = content.charCodeAt(i);
 
-    if(code >= 33 && code <= 126)
+    if(code >= 33 && code <= 126 && code != 124)
       count++;
   }
 
